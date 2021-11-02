@@ -1,7 +1,55 @@
 const express = require('express');
 const Estudiante = require('../models/estudiante.js');
+const nodemailer =require('nodemailer');
+
 
 const estudianteRouter = express.Router();
+
+estudianteRouter.post('/send-email', async (req, res) => {
+  
+  const { name, email, phone, message } = req.body;
+
+  contentHTML = `
+        <h1>Reunion de Estudiantes</h1>
+        <ul>
+            <li>Username: ${name}</li>
+            <li>User Email: ${email}</li>
+            <li>PhoneNumber: ${phone}</li>
+        </ul>
+        <p>${message}</p>
+    `;
+
+    let transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+          user: 'sergio.ac.1503@gmail.com',
+          pass: 'kjdguugxigjrbpui',
+      }
+  });
+
+
+  let info = await transporter.sendMail({
+      from: '"UNMSM form', // sender address,
+      to: 'sergio.aroni@unmsm.edu.pe, aroni.carbajals@gmail.com',
+      //to: mentorizados.email,
+      subject: 'Website Contact Form',
+      //text: 'Hello World'
+      html: contentHTML
+  })
+
+  console.log('Message sent: %s', info.messageId);
+  // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+
+  // Preview only available when sending through an Ethereal account
+  console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+  // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
+
+  res.redirect('/success.html'); 
+
+  /*console.log(req.body);
+  res.send("recibido")*/
+
+})
 
 estudianteRouter.post('/', async (req, res) => {
   const { nombre, apellido, profesion, universidad, email } = req.body
